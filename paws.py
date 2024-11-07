@@ -6,8 +6,8 @@ import requests
 import time
 import json
 from datetime import datetime, timedelta
-import cloudscraper
-requests = cloudscraper.create_scraper()
+import requests
+
 class Paws:
     def __init__(self):
         self.headers = {
@@ -109,7 +109,12 @@ class Paws:
             for data in list_data:
                 _id = data.get('_id','')
                 title = data.get('title','')
-                self.quest_completed(token=token, id=_id, name=title)
+                progress = data.get('progress')
+                status = progress.get('status')
+                if status == 'finished':
+                    self.print_(f"Task {title} Done")
+                else:
+                    self.quest_completed(token=token, id=_id, name=title)
     
     def quest_completed(self, token, id, name):
         url = 'https://api.paws.community/v1/quests/completed'

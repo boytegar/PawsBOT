@@ -94,7 +94,7 @@ def main():
             else:
                 print_(f"Wallet address : {wallet}")
             print_('Get Task')
-            # paw.quest_list(token=token)
+            paw.quest_list(token=token)
             
             
             

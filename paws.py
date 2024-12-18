@@ -59,7 +59,7 @@ class Paws:
     
     def auth(self, query):
         url = 'https://api.paws.community/v1/user/auth'
-        payload = {'data':query,'referralCode':'1mFY7Q2p'}
+        payload = {'data':query, 'referralCode':'1mFY7Q2p'}
         headers = {
             **self.headers,
             'Content-Length': str(len(payload)),
@@ -113,8 +113,13 @@ class Paws:
                 status = progress.get('status')
                 if status == 'finished':
                     self.print_(f"Task {title} Done")
+                elif status == 'claimable':
+                    self.quest_claim(token=token, id=_id, name=title)
                 else:
-                    self.quest_completed(token=token, id=_id, name=title)
+                    if title in ['Connect wallet', 'Invite 10 friends', 'Follow channel', 'Boost PAWS channel']:
+                        self.print_(f"Task {title} Skip")
+                    else:
+                        self.quest_completed(token=token, id=_id, name=title)
     
     def quest_completed(self, token, id, name):
         url = 'https://api.paws.community/v1/quests/completed'
@@ -152,4 +157,26 @@ class Paws:
                     self.print_(f"Claimed task {name} {data}")
         except Exception as error:
             self.print_(f"Error {error}")
+    
+    def connect_sol(self, token, sol_address):
+        url = 'https://api.paws.community/v1/user/sol-wallet'
+        headers = {
+            **self.headers,
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {token}'
+        }
+        try:
+            payload = {
+                "wallet": sol_address
+            }
+            response = self.make_request('post', url=url, headers=headers, json=payload)
+            if response is not None:
+                jsons = response.json()
+                success = jsons.get('success',False)
+                if success:
+                    self.print_(f'Bind Wallet Success, Address : {sol_address}')
+            
+        except Exception as error:
+            self.print_(f"Error {error}")
+            return None
         

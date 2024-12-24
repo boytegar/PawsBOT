@@ -111,16 +111,45 @@ class Paws:
                 title = data.get('title','')
                 progress = data.get('progress')
                 status = progress.get('status')
+                claimed = progress.get('claimed')
                 if status == 'finished':
                     self.print_(f"Task {title} Done")
                 elif status == 'claimable':
-                    self.quest_claim(token=token, id=_id, name=title)
+                    if claimed:
+                        self.quest_claim(token=token, id=_id, name=title)
                 else:
                     if title in ['Connect wallet', 'Invite 10 friends', 'Follow channel', 'Boost PAWS channel']:
                         self.print_(f"Task {title} Skip")
                     else:
                         self.quest_completed(token=token, id=_id, name=title)
     
+    def quest_christmas(self, token):
+        url = 'https://api.paws.community/v1/quests/list?type=christmas'
+        headers = {
+            'Authorization': f'Bearer {token}'
+        }
+
+        response = self.make_request('get', url=url, headers=headers)
+        if response is not None:
+            jsons = response.json()
+            list_data = jsons.get('data',[])
+            for data in list_data:
+                _id = data.get('_id','')
+                title = data.get('title','')
+                progress = data.get('progress')
+                status = progress.get('status')
+                claimed = progress.get('claimed')
+                if status == 'finished':
+                    self.print_(f"Task {title} Done")
+                elif status == 'claimable':
+                    if claimed:
+                        self.quest_claim(token=token, id=_id, name=title)
+                else:
+                    if title in ['Connect wallet', 'Invite 10 friends', 'Follow channel', 'Boost PAWS channel']:
+                        self.print_(f"Task {title} Skip")
+                    else:
+                        self.quest_completed(token=token, id=_id, name=title)
+
     def quest_completed(self, token, id, name):
         url = 'https://api.paws.community/v1/quests/completed'
         payload = {'questId':id}
@@ -135,8 +164,9 @@ class Paws:
         if response is not None:
             jsons = response.json()
             data = jsons.get('data',False)
+            success = jsons.get('success', False)
             self.print_(f"Checked task {name} {data}")
-            if data:
+            if success:
                 self.quest_claim(token=token, id=id, name=name)
     
     def quest_claim(self, token, id, name):
@@ -152,8 +182,9 @@ class Paws:
             response = self.make_request('post', url=url, headers=headers, json=payload)
             if response is not None:
                 jsons = response.json()
+                success = jsons.get('success', False)
                 data = jsons.get('data',False)
-                if data:
+                if success:
                     self.print_(f"Claimed task {name} {data}")
         except Exception as error:
             self.print_(f"Error {error}")

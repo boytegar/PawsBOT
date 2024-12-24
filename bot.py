@@ -104,6 +104,7 @@ def main():
                 print_(f"Wallet address : {wallet}")
             print_('Get Task')
             paw.quest_list(token=token)
+            paw.quest_christmas(token=token)
             
     print_(f"Total {total_balance} Paws From {sum} Account")
             
@@ -181,7 +182,7 @@ def start():
                PAWS BOT
         1. claim
         2. connect wallet ton
-        3. connct wallet sol
+        3. connect wallet sol
 """)
     choice = input("Enter your choice : ")
     if choice == '1':
